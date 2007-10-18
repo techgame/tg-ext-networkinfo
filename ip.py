@@ -116,10 +116,11 @@ class IPBase(object):
         raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
 
     def packed(self):
-        raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
+        return socket.inet_pton(self.afamily, self._getIP())
     @classmethod
     def unpack(klass, packed):
-        raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
+        return socket.inet_ntop(self.afamily, packed)
+
     @classmethod
     def fromPacked(self, packed, *args, **kw):
         return klass(self.unpack(packed), *args, **kw)
@@ -166,13 +167,6 @@ class IPv4(IPBase):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    def packed(self):
-        return socket.inet_aton(self._getIP())
-
-    @classmethod
-    def unpack(klass, packed):
-        return socket.inet_ntoa(packed)
-
     def str(self, short=True):
         if short and self._isNetmask:
             result = self._shortNetmasks.get(self._getIPNumber())
@@ -193,15 +187,6 @@ class IPv6(IPBase):
     _shortNetmasks = {}
     for i in xrange(0, 129):
         _shortNetmasks[max & ~((1L<<i)-1)] = i
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    def packed(self):
-        return socket.inet_pton(self.afamily, self._getIP())
-
-    @classmethod
-    def unpack(klass, packed):
-        return socket.inet_ntop(klass.afamily, packed)
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

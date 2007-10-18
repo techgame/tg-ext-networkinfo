@@ -44,7 +44,7 @@ def getifaddrs(*afamilies):
         addrs = e['addrs']
         addrs = [a for a in addrs if a[1]]
         if afamilies:
-            addrs = [a for a in addrs  if a[0] in afamilies]
+            addrs = [a for a in addrs if a[0] in afamilies]
         if addrs:
             result[k] = [ifaddrAsIP(*a) for a in addrs]
     return result
@@ -89,10 +89,6 @@ if __name__=='__main__':
     print
     print 'getifaddrs:'
     pprint(getifaddrs())
-    print
-
-    print "MAC addresses:"
-    pprint(getifaddrs_mac())
     print
 
     print "IPv4 addresses:"

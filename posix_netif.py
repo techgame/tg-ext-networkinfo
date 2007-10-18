@@ -27,7 +27,7 @@ import os
 import array
 import struct
 
-from socket import AF_INET, AF_INET6
+from socket import inet_ntop, AF_INET, AF_INET6
 import ctypes
 from ctypes.util import find_library
 
@@ -57,8 +57,7 @@ class sockaddr(ctypes.Structure):
         handler = self._dataByFamily.get(self.sa_family)
         if handler is not None:
             return handler(self, data)
-        else:
-            return data
+        else: return None
 
     def asTuple(self):
         return self.getFamily(), self.getAddress()
@@ -74,7 +73,6 @@ class sockaddr(ctypes.Structure):
         n = 6; ne = n+ord(data[3])
         a = ne; ae = a+ord(data[4])
         s = ae; se = s+ord(data[5])
-        #name = data[n:ne]
         addr = ':'.join([x.encode('hex') for x in data[a:ae]])
         #selctor = data[s:se]
         return addr
@@ -85,7 +83,8 @@ class sockaddr(ctypes.Structure):
         #   (2) port, 
         #   (4) address,
         #   (8) zeros
-        ipv4 = '.'.join([str(x) for x in struct.unpack('4B', data[2:6])])
+
+        ipv4 = inet_ntop(AF_INET, data[2:6])
         #port = struct.unpack('H', data[0:2])[0]
         return ipv4
     _dataByFamily[AF_INET] = _ipv4
@@ -96,7 +95,8 @@ class sockaddr(ctypes.Structure):
         #   (4) flow info, 
         #   (16) address, 
         #   (4) scope id, 
-        ipv6 = ':'.join(['%x' % p for p in struct.unpack('8H', data[6:22])])
+
+        ipv6 = inet_ntop(AF_INET6, data[6:22])
         #port = struct.unpack('H', data[0:2])[0]
         return ipv6
     _dataByFamily[AF_INET6] = _ipv6
