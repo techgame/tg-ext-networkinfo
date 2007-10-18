@@ -1,0 +1,48 @@
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ Project ignores
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+syntax: glob 
+
+syntax: regexp 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ Generally useful ignore configurations
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# auto-generated content
+syntax: glob 
+*.pyc
+*.pyo
+
+# swap files of various origins
+syntax: glob 
+*.find
+*.grep
+*.todo
+*.orig
+*~
+.*.swp
+.*.swo
+
+# Revision control miscelany
+syntax: glob 
+\.hgall
+\.hg/
+\.hg_archival.txt
+\.svn/
+CVS/
+
+# Various Windows generated files
+syntax: glob 
+Thumbs.db
+
+# Various MacOSX generated files
+syntax: glob 
+Icon?
+.VolumeIcon.icns
+\.DS_Store
+\.Trashes
+Desktop\ DB
+Desktop\ DF
+
