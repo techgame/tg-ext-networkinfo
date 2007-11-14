@@ -115,11 +115,22 @@ class IPBase(object):
     def str(self, short=True):
         raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
 
-    def packed(self):
-        return socket.inet_pton(self.afamily, self._getIP())
-    @classmethod
-    def unpack(klass, packed):
-        return socket.inet_ntop(self.afamily, packed)
+    if hasattr(socket, 'inet_pton'):
+        def packed(self):
+            return socket.inet_pton(self.afamily, self._getIP())
+        @classmethod
+        def unpack(klass, packed):
+            return socket.inet_ntop(self.afamily, packed)
+    else:
+        def packed(self):
+            if afamily != AF_INET:
+                raise NotImplementedError()
+            return socket.inet_aton(self._getIP())
+        @classmethod
+        def unpack(klass, packed):
+            if afamily != AF_INET:
+                raise NotImplementedError()
+            return socket.inet_ntoa(packed)
 
     @classmethod
     def fromPacked(self, packed, *args, **kw):
