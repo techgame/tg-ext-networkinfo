@@ -11,8 +11,9 @@
 #~ Imports 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from ip import asIP, asIPNet
+import sys
 import platform as _platform
+from ip import asIP, asIPNet
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions 
@@ -27,6 +28,9 @@ elif _platform.libc_ver()[0]:
 elif _platform.mac_ver()[0]:
     import posix_netif as platform_netif
     from posix_netif import *
+elif sys.platform == 'win32':
+    import win_netif as platform_netif
+    from win_netif import *
 else:
     raise Exception("No platform_getifaddrs implementation for: %s" % (_platform.platform,))
 
