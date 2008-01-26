@@ -58,7 +58,7 @@ class IP_ADAPTER_INFO(ctypes.Structure):
         ('DescriptionPrefix', ctypes.c_ubyte*2),
         ('Description', ctypes.c_char*(MAX_ADAPTER_DESCRIPTION_LENGTH + 2)),
         ('AddressLength', ctypes.c_uint),
-        ('Address', ctypes.c_ubyte*MAX_ADAPTER_ADDRESS_LENGTH),
+        ('Address', ctypes.c_char*MAX_ADAPTER_ADDRESS_LENGTH),
         ('Index', ctypes.c_ushort),
         ('Type', ctypes.c_uint),
         ('DhcpEnabled', ctypes.c_uint),
@@ -80,11 +80,11 @@ class IP_ADAPTER_INFO(ctypes.Structure):
         afamily = AF_INET
         result['name'] = ifName
         result['if_index'] = self.Index
-        #result['if_index'] = _if_nametoindex(ifName)
         result['desc'] = self.Description
         result['flags'] = 0
         result['addrs'] = addrs = []
-        addrs.append(('mac', ':'.join(chr(x).encode('hex') for x in self.Address[:self.AddressLength])))
+        macAddress = ':'.join(x.encode('hex') for x in self.Address[:self.AddressLength])
+        if macAddress: addrs.append(('mac', macAddress))
 
         ipaddr = self.IpAddressList
         while ipaddr:
@@ -127,6 +127,10 @@ def win_getifaddrs():
         entry = entry[0].Next
     return ifMap
 platform_getifaddrs = win_getifaddrs
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ Main 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if __name__=='__main__':
     from pprint import pprint

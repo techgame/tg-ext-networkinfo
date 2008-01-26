@@ -123,12 +123,12 @@ class IPBase(object):
             return socket.inet_ntop(self.afamily, packed)
     else:
         def packed(self):
-            if afamily != AF_INET:
+            if self.afamily != AF_INET:
                 raise NotImplementedError()
             return socket.inet_aton(self._getIP())
         @classmethod
         def unpack(klass, packed):
-            if afamily != AF_INET:
+            if self.afamily != AF_INET:
                 raise NotImplementedError()
             return socket.inet_ntoa(packed)
 
