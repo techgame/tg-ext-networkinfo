@@ -37,8 +37,16 @@ class IPBase(object):
             self._isNetmask = isNetmask
         self._setIP(ip)
 
-    def sockaddr(self, port=0, *args, **kw):
-        return socket.getaddrinfo(self._getIP(), port, *args, **kw)[0][-1]
+    def sockaddr(self, port=None, *args, **kw):
+        ip = self._getIP()
+        try:
+            address = socket.getaddrinfo(ip, port, *args, **kw)[0][-1]
+        except socket.gaierror, e:
+            if e.args[0] == socket.EAI_SERVICE:
+                address = socket.getaddrinfo(ip, None, *args, **kw)[0][-1]
+                address = (address[0], int(port)) + address[2:]
+            else: raise
+        return address
 
     def normalize(self):
         ip = self.sockaddr()[0]
