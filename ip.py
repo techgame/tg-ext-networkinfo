@@ -120,7 +120,7 @@ class IPBase(object):
             return socket.inet_pton(self.afamily, self._getIP())
         @classmethod
         def unpack(klass, packed):
-            return socket.inet_ntop(self.afamily, packed)
+            return socket.inet_ntop(klass.afamily, packed)
     else:
         def packed(self):
             if self.afamily != AF_INET:

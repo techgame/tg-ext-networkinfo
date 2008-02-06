@@ -116,8 +116,9 @@ class ifaddrs(ctypes.Structure):
         ]
 
     def addInteraface(self, ifMap):
+        result = {}
         ifName = self.ifa_name
-        result = ifMap.setdefault(ifName, {})
+        ifMap.append((ifName, result))
 
         result['name'] = ifName
         result['if_index'] = _if_nametoindex(ifName)
@@ -164,7 +165,7 @@ def _freeifaddrs(addrs):
     _libc.freeifaddrs(addrs)
 
 def posix_getifaddrs():
-    ifMap = {}
+    ifMap = []
     rootAddrs = _getifaddrs()
     try:
         entry = rootAddrs

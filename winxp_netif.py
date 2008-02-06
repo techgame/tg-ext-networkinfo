@@ -200,8 +200,9 @@ class IP_ADAPTER_ADDRESSES(ctypes.Structure):
         ]
 
     def addInteraface(self, ifMap):
+        result = {}
         ifName = self.FriendlyName
-        result = ifMap.setdefault(ifName, {})
+        ifMap.append((ifName, result))
 
         result['name'] = ifName
         result['adapterName'] = self.AdapterName
@@ -233,7 +234,7 @@ def _if_nametoindex(interfaceName):
 platform_if_nametoindex = _if_nametoindex
 
 def winxp_getifaddrs(afamily=0):
-    ifMap = {}
+    ifMap = []
     bytecount = ctypes.c_ulong(0)
     iph.GetAdaptersAddresses(afamily, 0, None, None, ctypes.byref(bytecount))
     if 0 == bytecount.value:

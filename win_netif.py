@@ -74,8 +74,9 @@ class IP_ADAPTER_INFO(ctypes.Structure):
     ]
 
     def addInteraface(self, ifMap):
+        result = {}
         ifName = self.AdapterName
-        result = ifMap.setdefault(ifName, {})
+        ifMap.append((ifName, result))
 
         afamily = AF_INET
         result['name'] = ifName
@@ -120,7 +121,7 @@ def win_getifaddrs():
     adapterData = (IP_ADAPTER_INFO*count)()
     iph.GetAdaptersInfo(adapterData, ctypes.byref(bytecount))
 
-    ifMap = {}
+    ifMap = []
     entry = adapterData
     while entry:
         entry[0].addInteraface(ifMap)

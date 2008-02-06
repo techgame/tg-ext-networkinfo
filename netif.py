@@ -43,14 +43,14 @@ def ifaddrAsIP(afamily, addr, netmask=None, *args):
         return (afamily, addr, netmask)
 
 def getifaddrs(*afamilies):
-    result = {}
-    for k, e in platform_getifaddrs().items():
+    result = []
+    for k, e in platform_getifaddrs():
         addrs = e['addrs']
         addrs = [a for a in addrs if a[1]]
         if afamilies:
             addrs = [a for a in addrs if a[0] in afamilies]
         if addrs:
-            result[k] = [ifaddrAsIP(*a) for a in addrs]
+            result.append((k, [ifaddrAsIP(*a) for a in addrs]))
     return result
 
 def getifaddrs_mac(): 
@@ -79,7 +79,7 @@ def getIFIndex(ifname):
 def getIFIndexForIP(ip, *afamilies):
     ip = asIP(ip)
     ifipMap = getifaddrs(*afamilies)
-    for ifname, iplist in ifipMap.iteritems():
+    for ifname, iplist in ifipMap:
         if ip in iplist:
             return getIFIndex(ifname)
     return None
