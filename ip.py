@@ -115,12 +115,12 @@ class IPBase(object):
         return hash(self._getIP())
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.str(True))
+        return '%s(%s)' % (self.__class__.__name__, self.asStr(True, True))
     def __str__(self):
-        return self.str()
+        return self.asStr(False, False)
     def __unicode__(self):
-        return unicode(self.str())
-    def str(self, short=True):
+        return unicode(self.asStr(False, False))
+    def asStr(self, short=True, incNetmask=True):
         raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
 
     if hasattr(socket, 'inet_pton'):
@@ -186,7 +186,7 @@ class IPv4(IPBase):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    def str(self, short=True):
+    def asStr(self, short=True, incNetmask=True):
         if short and self._isNetmask:
             result = self._shortNetmasks.get(self._getIPNumber())
             if result is not None:
@@ -209,7 +209,7 @@ class IPv6(IPBase):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    def str(self, short=True):
+    def asStr(self, short=True, incNetmask=True):
         if short and self._isNetmask:
             result = self._shortNetmasks.get(self._getIPNumber())
             if result is not None:
@@ -228,12 +228,12 @@ class IPNetBase(object):
         self.setIP(ip, netmask)
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.str(True))
+        return '%s(%s)' % (self.__class__.__name__, self.asStr(True, True))
 
     def __str__(self):
-        return self.str()
+        return self.asStr(False, False)
     def __unicode__(self):
-        return unicode(self.str())
+        return unicode(self.asStr(False, False))
 
     def sockaddr(self, port, *args, **kw):
         return self.ip.sockaddr(port, *args, **kw)
@@ -249,11 +249,11 @@ class IPNetBase(object):
 
         return self.asIPNet(ip, netmask)
 
-    def str(self, short=True):
+    def asStr(self, short=True, incNetmask=True):
         ip, netmask = self.ip, self.netmask
-        if netmask is not None:
-            return '%s/%s' % (ip.str(short), netmask.str(short))
-        else: return ip.str(short)
+        if incNetmask and netmask is not None:
+            return '%s/%s' % (ip.asStr(short, False), netmask.asStr(short, False))
+        else: return ip.asStr(short, False)
 
     _ip = None
     def getIP(self):
@@ -376,6 +376,8 @@ asIPNet = ipnet
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if __name__=='__main__':
+    print asIPNet('127.0.0.1', '255.255.0.0')
+
     print repr(asIPNet('10.2.2.1'))
     print repr(asIPNet('127.0.0.1', '255.255.0.0'))
     print repr(asIPNet('127.0.0.1', '16'))
