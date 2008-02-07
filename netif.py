@@ -42,7 +42,7 @@ def ifaddrAsIP(afamily, addr, netmask=None, *args):
     except LookupError:
         return (afamily, addr, netmask)
 
-def getifaddrs(*afamilies):
+def getIFInfo(*afamilies):
     result = []
     for k, e in platform_getifaddrs():
         addrs = e['addrs']
@@ -50,8 +50,14 @@ def getifaddrs(*afamilies):
         if afamilies:
             addrs = [a for a in addrs if a[0] in afamilies]
         if addrs:
-            result.append((k, [ifaddrAsIP(*a) for a in addrs]))
+            addrs = [ifaddrAsIP(*a) for a in addrs]
+            e['addrs'] = addrs
+            result.append((k, e))
     return result
+def getifindexes(*afamilies):
+    return [(n,k['if_index']) for n, k in getIFInfo(*afamilies)]
+def getifaddrs(*afamilies):
+    return [(n,k['addrs']) for n, k in getIFInfo(*afamilies)]
 
 def getifaddrs_mac(): 
     return getifaddrs(AF_LINK)
@@ -62,7 +68,7 @@ def getifaddrs_v6():
     return getifaddrs(AF_INET6)
 
 def getIFAddressList(ifname, *afamilies):
-    return getifaddrs(*afamilies)[ifname]
+    return [k for n, k in getifaddrs(*afamilies) if n == ifname]
 def getIFAddressList_v4(ifname):
     return getIFAddressList(ifname, AF_INET)
 def getIFAddressList_v6(ifname):
@@ -101,5 +107,9 @@ if __name__=='__main__':
 
     print "IPv6 addresses:"
     pprint(getifaddrs_v6())
+    print
+
+    print "Indexes:"
+    pprint(getifindexes())
     print
 
