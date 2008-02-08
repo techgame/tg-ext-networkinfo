@@ -42,22 +42,34 @@ def ifaddrAsIP(afamily, addr, netmask=None, *args):
     except LookupError:
         return (afamily, addr, netmask)
 
-def getIFInfo(*afamilies):
-    result = []
+def getifinfo(*afamilies):
+    order = []
+    result = {}
     for k, e in platform_getifaddrs():
         addrs = e['addrs']
         addrs = [a for a in addrs if a[1]]
         if afamilies:
             addrs = [a for a in addrs if a[0] in afamilies]
-        if addrs:
-            addrs = [ifaddrAsIP(*a) for a in addrs]
-            e['addrs'] = addrs
-            result.append((k, e))
-    return result
+        if not addrs:
+            continue
+
+        addrs = [ifaddrAsIP(*a) for a in addrs]
+        e['addrs'] = addrs
+        if k not in order:
+            order.append(k)
+        result.setdefault(k, []).append(e)
+    return [(n, result[n]) for n in order]
+
+def orderedset(l):
+    v = dict(zip(l,l))
+    return [v.pop(e) for e in l if e in v]
 def getifindexes(*afamilies):
-    return [(n,k['if_index']) for n, k in getIFInfo(*afamilies)]
+    return [(n,orderedset([k['if_index'] for k in entries])) 
+                for n, entries in getifinfo(*afamilies)]
+
 def getifaddrs(*afamilies):
-    return [(n,k['addrs']) for n, k in getIFInfo(*afamilies)]
+    return [(n,[a for k in entries for a in k['addrs']])
+                for n, entries in getifinfo(*afamilies)]
 
 def getifaddrs_mac(): 
     return getifaddrs(AF_LINK)
