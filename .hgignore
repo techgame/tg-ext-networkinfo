@@ -39,10 +39,13 @@ Thumbs.db
 
 # Various MacOSX generated files
 syntax: glob 
-Icon?
 .VolumeIcon.icns
 \.DS_Store
 \.Trashes
 Desktop\ DB
 Desktop\ DF
+
+
+syntax: regexp
+Icon\r
 
