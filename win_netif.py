@@ -94,8 +94,6 @@ class IP_ADAPTER_INFO(ctypes.Structure):
                 addrs.append((afamily, ipaddr.IpAddress, ipaddr.IpMask))
             ipaddr = ipaddr.Next
 
-        ifMap[ifName] = result
-
 ctypes.SetPointerType(PIP_ADAPTER_INFO, IP_ADAPTER_INFO)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
