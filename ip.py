@@ -16,6 +16,11 @@ import socket
 from socket import AF_INET, AF_INET6
 from itertools import groupby, takewhile
 
+if hasattr(socket, 'inet_pton'):
+    from socket import inet_pton, inet_ntop
+else:
+    from .utils.inet import inet_pton, inet_ntop
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Constants / Variables / Etc. 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,22 +128,11 @@ class IPBase(object):
     def asStr(self, short=True, incNetmask=True):
         raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
 
-    if hasattr(socket, 'inet_pton'):
-        def packed(self):
-            return socket.inet_pton(self.afamily, self._getIP())
-        @classmethod
-        def unpack(klass, packed):
-            return socket.inet_ntop(klass.afamily, packed)
-    else:
-        def packed(self):
-            if self.afamily != AF_INET:
-                raise NotImplementedError()
-            return socket.inet_aton(self._getIP())
-        @classmethod
-        def unpack(klass, packed):
-            if self.afamily != AF_INET:
-                raise NotImplementedError()
-            return socket.inet_ntoa(packed)
+    def packed(self):
+        return socket.inet_pton(self.afamily, self._getIP())
+    @classmethod
+    def unpack(klass, packed):
+        return socket.inet_ntop(klass.afamily, packed)
 
     @classmethod
     def fromPacked(self, packed, *args, **kw):
