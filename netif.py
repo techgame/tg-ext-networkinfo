@@ -85,6 +85,9 @@ def getIFAddressList_v4(ifname):
     return getIFAddressList(ifname, AF_INET)
 def getIFAddressList_v6(ifname):
     return getIFAddressList(ifname, AF_INET6)
+def getIFAddressList_mac(ifname):
+    return getIFAddressList(ifname, AF_LINK)
+getIFAddressList_link = getIFAddressList_mac
 
 def getIFIndex(ifname):
     if isinstance(ifname, (int, long)):
