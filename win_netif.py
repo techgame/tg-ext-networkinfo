@@ -20,11 +20,12 @@ __all__ = [
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import ctypes
+import socket
 from socket import AF_INET, AF_INET6
 try:
     from socket import AF_LINK
 except ImportError:
-    AF_LINK = 18 # macAddress
+    AF_LINK = 'mac'
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions 

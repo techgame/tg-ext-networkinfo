@@ -21,11 +21,17 @@ __all__ = [
 
 import struct
 import ctypes
+import socket
 from socket import AF_INET, AF_INET6
 try:
     from socket import AF_LINK
 except ImportError:
-    AF_LINK = 18 # macAddress
+    AF_LINK = 'mac'
+
+if hasattr(socket, 'inet_pton'):
+    from socket import inet_pton, inet_ntop
+else:
+    from .utils.inet import inet_pton, inet_ntop
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions 
@@ -59,13 +65,13 @@ class SOCKET_ADDRESS(ctypes.Structure):
 
     def decode_AF_INET6(self, bytes, prefixLen):
         afamily, port, addr = struct.unpack('@hH4x16s4x', bytes)
-        addr = addr.encode('hex')
+        addr = inet_ntop(AF_INET6, addr)
 
         mask = ~((1L<<(128-prefixLen)) - 1)
         mask = struct.pack('!QQ', 
                     (mask>>64) & 0xffffffffffffffff,
                     (mask>> 0) & 0xffffffffffffffff)
-        mask = socket.inet_ntop(AF_INET6, mask)
+        mask = inet_ntop(AF_INET6, mask)
         return (afamily, addr, mask)
     formats[AF_INET6] = decode_AF_INET6
 
@@ -96,10 +102,7 @@ class IP_ADAPTER_UNICAST_ADDRESS(ctypes.Structure):
 
     _iterAddresses = linkedListIterAddresses
     def iterAddresses(self):
-        if ctypes.sizeof(self) == self.Length:
-            prefixLen = self.OnLinkPrefixLength
-        else: prefixLen = 0
-        return self._iterAddresses(prefixLen)
+        return self._iterAddresses()
 
 ctypes.SetPointerType(PIP_ADAPTER_UNICAST_ADDRESS, IP_ADAPTER_UNICAST_ADDRESS)
 

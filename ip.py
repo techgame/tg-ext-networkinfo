@@ -129,10 +129,10 @@ class IPBase(object):
         raise NotImplementedError('Subclass Responsibility: %r' % (self.__class__,))
 
     def packed(self):
-        return socket.inet_pton(self.afamily, self._getIP())
+        return inet_pton(self.afamily, self._getIP())
     @classmethod
     def unpack(klass, packed):
-        return socket.inet_ntop(klass.afamily, packed)
+        return inet_ntop(klass.afamily, packed)
 
     @classmethod
     def fromPacked(self, packed, *args, **kw):
