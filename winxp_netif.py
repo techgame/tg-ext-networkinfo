@@ -20,8 +20,12 @@ __all__ = [
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import struct
-from socket import AF_INET, AF_INET6
 import ctypes
+from socket import AF_INET, AF_INET6
+try:
+    from socket import AF_LINK
+except ImportError:
+    AF_LINK = 18 # macAddress
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions 
@@ -41,6 +45,7 @@ class SOCKET_ADDRESS(ctypes.Structure):
         decode = self.formats.get(ord(bytes[0]))
         if decode is not None:
             yield decode(self, bytes, prefixLen)
+        else: print 'no decode for:', ord(bytes[0])
 
     def decode_AF_INET(self, bytes, prefixLen):
         afamily, port, addr = struct.unpack('@hH4s8x', bytes)
@@ -162,7 +167,7 @@ class IP_ADAPTER_ADDRESSES(ctypes.Structure):
         ('Description', ctypes.c_wchar_p),
         ('FriendlyName', ctypes.c_wchar_p),
 
-        ('PhysicalAddress', ctypes.c_char*MAX_ADAPTER_ADDRESS_LENGTH),
+        ('PhysicalAddress', ctypes.c_ubyte*MAX_ADAPTER_ADDRESS_LENGTH),
         ('PhysicalAddressLength', ctypes.c_ulong),
 
         ('Flags', ctypes.c_ulong),
@@ -199,7 +204,7 @@ class IP_ADAPTER_ADDRESSES(ctypes.Structure):
         ##('FirstDnsSuffix', PIP_ADAPTER_DNS_SUFFIX), 
         ]
 
-    def addInteraface(self, ifMap):
+    def addInterface(self, ifMap):
         result = {}
         ifName = self.FriendlyName
         ifMap.append((ifName, result))
@@ -211,8 +216,10 @@ class IP_ADAPTER_ADDRESSES(ctypes.Structure):
         result['flags'] = self.Flags
         result['addrs'] = addrs = []
 
-        macAddress = ':'.join(x.encode('hex') for x in self.PhysicalAddress[:self.PhysicalAddressLength])
-        if macAddress: addrs.append(('mac', macAddress))
+        macAddress = self.PhysicalAddress[:self.PhysicalAddressLength]
+        if macAddress: 
+            macAddress = ':'.join('%02x'%(x,) for x in macAddress)
+            addrs.append((AF_LINK, macAddress))
 
         addrs.extend(self.iterAddressesOf(self.FirstUnicastAddress))
 
@@ -249,7 +256,7 @@ def winxp_getifaddrs(afamily=0):
 
     entry = adapterData
     while entry:
-        entry[0].addInteraface(ifMap)
+        entry[0].addInterface(ifMap)
         entry = entry[0].Next
     return ifMap
 platform_getifaddrs = winxp_getifaddrs

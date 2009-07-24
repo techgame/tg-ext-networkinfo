@@ -115,7 +115,7 @@ class ifaddrs(ctypes.Structure):
         ('ifa_data', ctypes.c_void_p),
         ]
 
-    def addInteraface(self, ifMap):
+    def addInterface(self, ifMap):
         result = {}
         ifName = self.ifa_name
         ifMap.append((ifName, result))
@@ -170,7 +170,7 @@ def posix_getifaddrs():
     try:
         entry = rootAddrs
         while entry:
-            entry[0].addInteraface(ifMap)
+            entry[0].addInterface(ifMap)
             entry = entry[0].ifa_next
     finally:
         _freeifaddrs(rootAddrs)

@@ -21,12 +21,14 @@ __all__ = [
 
 import ctypes
 from socket import AF_INET, AF_INET6
+try:
+    from socket import AF_LINK
+except ImportError:
+    AF_LINK = 18 # macAddress
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-AF_LINK = 'mac'
 
 IP_ADDRESS_STRING = ctypes.c_char*16
 IP_MASK_STRING = IP_ADDRESS_STRING
@@ -58,7 +60,7 @@ class IP_ADAPTER_INFO(ctypes.Structure):
         ('DescriptionPrefix', ctypes.c_ubyte*2),
         ('Description', ctypes.c_char*(MAX_ADAPTER_DESCRIPTION_LENGTH + 2)),
         ('AddressLength', ctypes.c_uint),
-        ('Address', ctypes.c_char*MAX_ADAPTER_ADDRESS_LENGTH),
+        ('Address', ctypes.c_ubyte*MAX_ADAPTER_ADDRESS_LENGTH),
         ('Index', ctypes.c_ushort),
         ('Type', ctypes.c_uint),
         ('DhcpEnabled', ctypes.c_uint),
@@ -73,7 +75,7 @@ class IP_ADAPTER_INFO(ctypes.Structure):
         ('LeaseExpires', ctypes.c_ulong),
     ]
 
-    def addInteraface(self, ifMap):
+    def addInterface(self, ifMap):
         result = {}
         ifName = self.AdapterName
         ifMap.append((ifName, result))
@@ -84,8 +86,11 @@ class IP_ADAPTER_INFO(ctypes.Structure):
         result['desc'] = self.Description
         result['flags'] = 0
         result['addrs'] = addrs = []
-        macAddress = ':'.join(x.encode('hex') for x in self.Address[:self.AddressLength])
-        if macAddress: addrs.append(('mac', macAddress))
+
+        macAddress = self.Address[:self.AddressLength]
+        if macAddress: 
+            macAddress = ':'.join('%02x'%(x,) for x in macAddress)
+            addrs.append((AF_LINK, macAddress))
 
         ipaddr = self.IpAddressList
         while ipaddr:
@@ -122,7 +127,7 @@ def win_getifaddrs():
     ifMap = []
     entry = adapterData
     while entry:
-        entry[0].addInteraface(ifMap)
+        entry[0].addInterface(ifMap)
         entry = entry[0].Next
     return ifMap
 platform_getifaddrs = win_getifaddrs

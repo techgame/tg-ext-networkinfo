@@ -20,8 +20,8 @@ from ip import asIP, asIPNet
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if _platform.win32_ver()[0]:
-    import win_netif as platform_netif
-    from win_netif import *
+    import winxp_netif as platform_netif
+    from winxp_netif import *
 elif _platform.libc_ver()[0]:
     import posix_netif as platform_netif
     from posix_netif import *
@@ -29,8 +29,8 @@ elif _platform.mac_ver()[0]:
     import posix_netif as platform_netif
     from posix_netif import *
 elif sys.platform == 'win32':
-    import win_netif as platform_netif
-    from win_netif import *
+    import winxp_netif as platform_netif
+    from winxp_netif import *
 else:
     raise Exception("No platform_getifaddrs implementation for: %s" % (_platform.platform,))
 
