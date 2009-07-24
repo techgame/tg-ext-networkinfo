@@ -55,11 +55,11 @@ class SOCKET_ADDRESS(ctypes.Structure):
 
     def decode_AF_INET(self, bytes, prefixLen):
         afamily, port, addr = struct.unpack('@hH4s8x', bytes)
-        addr = '.'.join('%d' % ord(c) for c in addr)
+        addr = inet_ntop(AF_INET, addr)
 
         mask = ~((1<<(32-prefixLen)) - 1)
         mask = struct.pack('!L', mask & 0xffffffff)
-        mask = '.'.join('%d' % ord(c) for c in mask)
+        mask = inet_ntop(AF_INET, mask)
         return (afamily, addr, mask)
     formats[AF_INET] = decode_AF_INET
 
